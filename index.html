@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Eksekutif Rekapitulasi Hutang PT 2026</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-3 mb-2 md:mb-0">
+                <div class="bg-blue-600 p-2.5 rounded-lg text-white shadow-lg">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Dashboard Rekapitulasi Hutang PT</h1>
+                    <p class="text-xs text-slate-400">Monitoring Hutang per Entitas, Rincian Per Tahun & Pembayaran Cicilan</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Export CSV</span>
+                </button>
+                <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300">
+                    <i class="fa-regular fa-calendar-days mr-1.5 text-blue-400"></i> Tahun 2026
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
+
+        <!-- Top KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Total Entitas</p>
+                    <h3 class="text-2xl font-bold text-slate-900">4 PT</h3>
+                    <span class="text-xs text-emerald-600 font-medium mt-1 inline-block"><i class="fa-solid fa-building mr-1"></i> KPU, KPW, KPB, MIGI</span>
+                </div>
+                <div class="bg-blue-50 text-blue-600 p-4 rounded-xl">
+                    <i class="fa-solid fa-city text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Total Hutang (Debet)</p>
+                    <h3 id="kpi-total-debet" class="text-xl font-bold text-slate-900">Rp 0</h3>
+                    <span class="text-xs text-blue-600 font-medium mt-1 inline-block"><i class="fa-solid fa-arrow-down mr-1"></i> Akumulasi Pinjaman</span>
+                </div>
+                <div class="bg-emerald-50 text-emerald-600 p-4 rounded-xl">
+                    <i class="fa-solid fa-wallet text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Total Dibayar (Cicilan)</p>
+                    <h3 id="kpi-total-kredit" class="text-xl font-bold text-slate-900">Rp 0</h3>
+                    <span class="text-xs text-amber-600 font-medium mt-1 inline-block"><i class="fa-solid fa-arrow-up mr-1"></i> Uang Masuk / Bayar</span>
+                </div>
+                <div class="bg-amber-50 text-amber-600 p-4 rounded-xl">
+                    <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Total Saldo Hutang Akhir</p>
+                    <h3 id="kpi-total-saldo" class="text-xl font-bold text-slate-900">Rp 0</h3>
+                    <span class="text-xs text-indigo-600 font-medium mt-1 inline-block"><i class="fa-solid fa-scale-balanced mr-1"></i> Sisa Kewajiban</span>
+                </div>
+                <div class="bg-indigo-50 text-indigo-600 p-4 rounded-xl">
+                    <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume Section (Cards per PT) -->
+        <div class="space-y-4">
+            <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-id-card text-blue-600 mr-2"></i> Resume Hutang Masing-Masing PT</h3>
+            <div id="resumeCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Bar Chart: Debet vs Kredit per Entitas -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-chart-bar text-blue-600 mr-2"></i> Perbandingan Total Hutang vs Pembayaran per PT</h3>
+                </div>
+                <div class="relative flex-grow h-80">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Doughnut Chart: Proporsi Saldo Akhir Hutang -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-slate-900"><i class="fa-solid fa-chart-pie text-emerald-600 mr-2"></i> Proporsi Saldo Hutang Akhir</h3>
+                </div>
+                <div class="relative flex-grow h-80 flex justify-center items-center">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yearly Breakdown Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-calendar-days text-indigo-600 mr-2"></i> Rincian Hutang Per Tahun & Pembayaran (Cicilan)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold tracking-wider">
+                        <tr>
+                            <th class="py-3 px-4">Entitas PT</th>
+                            <th class="py-3 px-4 text-center">Tahun</th>
+                            <th class="py-3 px-4 text-right">Total Hutang Baru (Debet)</th>
+                            <th class="py-3 px-4 text-right">Pembayaran / Cicilan (Kredit)</th>
+                            <th class="py-3 px-4 text-right">Saldo Akhir Tahun</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs text-slate-600" id="yearlyTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Ledger Table Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Detail Ledger Transaksi Rekapan Hutang</h3>
+                    <p class="text-xs text-slate-500">Gunakan filter di bawah untuk menelusuri transaksi spesifik.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative flex-grow md:w-64">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari Reff..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <!-- Filter Entitas Dropdown -->
+                    <div class="w-full md:w-48">
+                        <select id="entityFilter" onchange="filterTable()" class="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Semua Entitas PT</option>
+                            <option value="PT. KPU">PT. KPU</option>
+                            <option value="PT. KPW">PT. KPW</option>
+                            <option value="PT. KPB">PT. KPB</option>
+                            <option value="PT. MIGI">PT. MIGI</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[500px]">
+                <table id="dataTable" class="w-full text-left border-collapse">
+                    <thead class="bg-slate-100 text-slate-700 uppercase text-[10px] font-bold tracking-wider sticky top-0 z-10">
+                        <tr>
+                            <th class="py-3 px-4 text-center">No</th>
+                            <th class="py-3 px-4">Entitas PT</th>
+                            <th class="py-3 px-4 text-center">Tanggal</th>
+                            <th class="py-3 px-4 text-center">Tahun</th>
+                            <th class="py-3 px-4">Reff</th>
+                            <th class="py-3 px-4 text-right">Debet (Rp)</th>
+                            <th class="py-3 px-4 text-right">Kredit (Rp)</th>
+                            <th class="py-3 px-4 text-right">Saldo (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs text-slate-600" id="tableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Footer / Pagination info -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                <span id="tableInfo">Menampilkan semua data</span>
+                <span class="font-medium">Dashboard Rekapan Hutang PT 2026</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-12 text-center text-xs">
+        <p>&copy; 2026 Dashboard Rekapitulasi Hutang PT. All Rights Reserved. Standalone Interactive Web App.</p>
+    </footer>
+
+    <!-- JavaScript Data and Logic -->
+    <script>
+        const rawData = [{"no": 1, "entitas": "PT. KPU", "tanggal": "2023-01-01", "tahun": 2023, "reff": "-", "debet": 0.0, "kredit": 0.0, "saldo": 10300000000.0}, {"no": 2, "entitas": "PT. KPU", "tanggal": "2023-05-29", "tahun": 2023, "reff": "BN0586", "debet": 1100000000.0, "kredit": 0.0, "saldo": 11400000000.0}, {"no": 3, "entitas": "PT. KPU", "tanggal": "2023-06-07", "tahun": 2023, "reff": "BNI0610", "debet": 1000000000.0, "kredit": 0.0, "saldo": 12400000000.0}, {"no": 4, "entitas": "PT. KPU", "tanggal": "2023-07-04", "tahun": 2023, "reff": "BNI0706", "debet": 1000000000.0, "kredit": 0.0, "saldo": 13400000000.0}, {"no": 5, "entitas": "PT. KPU", "tanggal": "2023-08-10", "tahun": 2023, "reff": "BNI0828", "debet": 1500000000.0, "kredit": 0.0, "saldo": 14900000000.0}, {"no": 6, "entitas": "PT. KPU", "tanggal": "2023-12-04", "tahun": 2023, "reff": "MDR1-1203", "debet": 500000000.0, "kredit": 0.0, "saldo": 15400000000.0}, {"no": 7, "entitas": "PT. KPU", "tanggal": "2023-12-14", "tahun": 2023, "reff": "BNI1218", "debet": 500000000.0, "kredit": 0.0, "saldo": 15900000000.0}, {"no": 8, "entitas": "PT. KPU", "tanggal": "2023-12-20", "tahun": 2023, "reff": "BNI1221", "debet": 100000000.0, "kredit": 0.0, "saldo": 16000000000.0}, {"no": 9, "entitas": "PT. KPU", "tanggal": "2023-12-28", "tahun": 2023, "reff": "BNI1245", "debet": 3400000000.0, "kredit": 0.0, "saldo": 19400000000.0}, {"no": 10, "entitas": "PT. KPU", "tanggal": "2024-02-01", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 18900000000.0}, {"no": 11, "entitas": "PT. KPU", "tanggal": "2024-02-27", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 19900000000.0}, {"no": 12, "entitas": "PT. KPU", "tanggal": "2024-03-28", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 20900000000.0}, {"no": 13, "entitas": "PT. KPU", "tanggal": "2024-04-05", "tahun": 2024, "reff": "-", "debet": 1400000000.0, "kredit": 0.0, "saldo": 22300000000.0}, {"no": 14, "entitas": "PT. KPU", "tanggal": "2024-11-04", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 21300000000.0}, {"no": 15, "entitas": "PT. KPU", "tanggal": "2024-11-05", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 20800000000.0}, {"no": 16, "entitas": "PT. KPU", "tanggal": "2024-11-07", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1850000000.0, "saldo": 18950000000.0}, {"no": 17, "entitas": "PT. KPU", "tanggal": "2024-11-20", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 400000000.0, "saldo": 18550000000.0}, {"no": 18, "entitas": "PT. KPU", "tanggal": "2025-01-21", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 17550000000.0}, {"no": 19, "entitas": "PT. KPU", "tanggal": "2025-02-10", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 17300000000.0}, {"no": 20, "entitas": "PT. KPU", "tanggal": "2025-02-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 16300000000.0}, {"no": 21, "entitas": "PT. KPU", "tanggal": "2025-02-20", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1500000000.0, "saldo": 14800000000.0}, {"no": 22, "entitas": "PT. KPU", "tanggal": "2025-04-15", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 14550000000.0}, {"no": 23, "entitas": "PT. KPU", "tanggal": "2025-04-24", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 6000000000.0, "saldo": 8550000000.0}, {"no": 24, "entitas": "PT. KPU", "tanggal": "2025-05-22", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 300000000.0, "saldo": 8250000000.0}, {"no": 25, "entitas": "PT. KPU", "tanggal": "2025-06-24", "tahun": 2025, "reff": "-", "debet": 1500000000.0, "kredit": 0.0, "saldo": 9750000000.0}, {"no": 26, "entitas": "PT. KPU", "tanggal": "2025-07-23", "tahun": 2025, "reff": "-", "debet": 1520000000.0, "kredit": 0.0, "saldo": 11270000000.0}, {"no": 27, "entitas": "PT. KPU", "tanggal": "2025-07-25", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 11020000000.0}, {"no": 28, "entitas": "PT. KPU", "tanggal": "2025-08-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 270000000.0, "saldo": 10750000000.0}, {"no": 29, "entitas": "PT. KPU", "tanggal": "2025-09-12", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 10500000000.0}, {"no": 30, "entitas": "PT. KPU", "tanggal": "2025-11-19", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 200000000.0, "saldo": 10300000000.0}, {"no": 31, "entitas": "PT. KPU", "tanggal": "2025-12-08", "tahun": 2025, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 10800000000.0}, {"no": 32, "entitas": "PT. KPU", "tanggal": "2025-12-09", "tahun": 2025, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 11800000000.0}, {"no": 33, "entitas": "PT. KPW", "tanggal": "2023-01-01", "tahun": 2023, "reff": "-", "debet": 0.0, "kredit": 0.0, "saldo": 11004124360.0}, {"no": 34, "entitas": "PT. KPW", "tanggal": "2023-07-28", "tahun": 2023, "reff": "BNI0878", "debet": 500000000.0, "kredit": 0.0, "saldo": 11504124360.0}, {"no": 35, "entitas": "PT. KPW", "tanggal": "2023-08-02", "tahun": 2023, "reff": "BNI0808", "debet": 1000000000.0, "kredit": 0.0, "saldo": 12504124360.0}, {"no": 36, "entitas": "PT. KPW", "tanggal": "2023-08-30", "tahun": 2023, "reff": "BNI0851", "debet": 1000000000.0, "kredit": 0.0, "saldo": 13504124360.0}, {"no": 37, "entitas": "PT. KPW", "tanggal": "2023-12-14", "tahun": 2023, "reff": "BNI1216", "debet": 0.0, "kredit": 2000000000.0, "saldo": 11504124360.0}, {"no": 38, "entitas": "PT. KPW", "tanggal": "2023-12-31", "tahun": 2023, "reff": "ADJS77", "debet": 0.0, "kredit": 1800000000.0, "saldo": 9704124360.0}, {"no": 39, "entitas": "PT. KPW", "tanggal": "2024-02-28", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 10704124360.0}, {"no": 40, "entitas": "PT. KPW", "tanggal": "2024-03-26", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 11704124360.0}, {"no": 41, "entitas": "PT. KPW", "tanggal": "2024-10-30", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 12704124360.0}, {"no": 42, "entitas": "PT. KPW", "tanggal": "2024-11-05", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 204124360.0, "saldo": 12500000000.0}, {"no": 43, "entitas": "PT. KPW", "tanggal": "2024-11-20", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 5430000000.0, "saldo": 7070000000.0}, {"no": 44, "entitas": "PT. KPW", "tanggal": "2025-01-13", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 6070000000.0}, {"no": 45, "entitas": "PT. KPW", "tanggal": "2025-01-17", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 5570000000.0}, {"no": 46, "entitas": "PT. KPW", "tanggal": "2025-01-21", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1500000000.0, "saldo": 4070000000.0}, {"no": 47, "entitas": "PT. KPW", "tanggal": "2025-02-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 3070000000.0}, {"no": 48, "entitas": "PT. KPW", "tanggal": "2025-02-21", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 2070000000.0}, {"no": 49, "entitas": "PT. KPW", "tanggal": "2025-04-15", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 1820000000.0}, {"no": 50, "entitas": "PT. KPW", "tanggal": "2025-05-19", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 220000000.0, "saldo": 1600000000.0}, {"no": 51, "entitas": "PT. KPW", "tanggal": "2025-07-23", "tahun": 2025, "reff": "-", "debet": 3400000000.0, "kredit": 0.0, "saldo": 5000000000.0}, {"no": 52, "entitas": "PT. KPW", "tanggal": "2025-08-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 100000000.0, "saldo": 4900000000.0}, {"no": 53, "entitas": "PT. KPW", "tanggal": "2026-01-15", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 200000000.0, "saldo": 4700000000.0}, {"no": 54, "entitas": "PT. KPW", "tanggal": "2026-07-22", "tahun": 2026, "reff": "-", "debet": 3000000000.0, "kredit": 0.0, "saldo": 7700000000.0}, {"no": 55, "entitas": "PT. KPW", "tanggal": "2026-07-31", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 6700000000.0}, {"no": 56, "entitas": "PT. KPB", "tanggal": "2023-01-03", "tahun": 2023, "reff": "BNI0109", "debet": 700000000.0, "kredit": 0.0, "saldo": 10624250000.0}, {"no": 57, "entitas": "PT. KPB", "tanggal": "2023-01-03", "tahun": 2023, "reff": "MDR1-0101", "debet": 0.0, "kredit": 700000000.0, "saldo": 9924250000.0}, {"no": 58, "entitas": "PT. KPB", "tanggal": "2023-01-20", "tahun": 2023, "reff": "BNI0155", "debet": 1500000000.0, "kredit": 0.0, "saldo": 11424250000.0}, {"no": 59, "entitas": "PT. KPB", "tanggal": "2023-02-07", "tahun": 2023, "reff": "BNI0212", "debet": 0.0, "kredit": 1000000000.0, "saldo": 10424250000.0}, {"no": 60, "entitas": "PT. KPB", "tanggal": "2023-08-14", "tahun": 2023, "reff": "BNI0829", "debet": 1000000000.0, "kredit": 0.0, "saldo": 11424250000.0}, {"no": 61, "entitas": "PT. KPB", "tanggal": "2023-09-27", "tahun": 2023, "reff": "BNI0963", "debet": 1000000000.0, "kredit": 0.0, "saldo": 12424250000.0}, {"no": 62, "entitas": "PT. KPB", "tanggal": "2023-10-18", "tahun": 2023, "reff": "BNI1012", "debet": 0.0, "kredit": 1000000000.0, "saldo": 11424250000.0}, {"no": 63, "entitas": "PT. KPB", "tanggal": "2023-10-24", "tahun": 2023, "reff": "MDR1-1022", "debet": 0.0, "kredit": 1000000000.0, "saldo": 10424250000.0}, {"no": 64, "entitas": "PT. KPB", "tanggal": "2023-11-17", "tahun": 2023, "reff": "BNI1117", "debet": 0.0, "kredit": 1500000000.0, "saldo": 8924250000.0}, {"no": 65, "entitas": "PT. KPB", "tanggal": "2023-11-30", "tahun": 2023, "reff": "BNI1139", "debet": 0.0, "kredit": 500000000.0, "saldo": 8424250000.0}, {"no": 66, "entitas": "PT. KPB", "tanggal": "2023-12-28", "tahun": 2023, "reff": "BNI1242", "debet": 2000000000.0, "kredit": 0.0, "saldo": 10424250000.0}, {"no": 67, "entitas": "PT. KPB", "tanggal": "2024-01-17", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 9424250000.0}, {"no": 68, "entitas": "PT. KPB", "tanggal": "2024-02-28", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1500000000.0, "saldo": 7924250000.0}, {"no": 69, "entitas": "PT. KPB", "tanggal": "2024-04-04", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 6924250000.0}, {"no": 70, "entitas": "PT. KPB", "tanggal": "2024-05-16", "tahun": 2024, "reff": "-", "debet": 600000000.0, "kredit": 0.0, "saldo": 7524250000.0}, {"no": 71, "entitas": "PT. KPB", "tanggal": "2024-07-31", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 160356379.0, "saldo": 7363893621.0}, {"no": 72, "entitas": "PT. KPB", "tanggal": "2024-11-03", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 800000000.0, "saldo": 6563893621.0}, {"no": 73, "entitas": "PT. KPB", "tanggal": "2024-11-07", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 200000000.0, "saldo": 6363893621.0}, {"no": 74, "entitas": "PT. KPB", "tanggal": "2024-02-29", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 5363893621.0}, {"no": 75, "entitas": "PT. KPB", "tanggal": "-", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 1807987940.0, "saldo": 3555905681.0}, {"no": 76, "entitas": "PT. KPB", "tanggal": "2025-04-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 200000000.0, "saldo": 3355905681.0}, {"no": 77, "entitas": "PT. KPB", "tanggal": "2025-05-15", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 2855905681.0}, {"no": 78, "entitas": "PT. KPB", "tanggal": "2025-06-24", "tahun": 2025, "reff": "-", "debet": 750000000.0, "kredit": 0.0, "saldo": 3605905681.0}, {"no": 79, "entitas": "PT. KPB", "tanggal": "2025-07-23", "tahun": 2025, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 4605905681.0}, {"no": 80, "entitas": "PT. KPB", "tanggal": "2025-08-14", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 100000000.0, "saldo": 4505905681.0}, {"no": 81, "entitas": "PT. KPB", "tanggal": "2025-09-12", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 200000000.0, "saldo": 4305905681.0}, {"no": 82, "entitas": "PT. KPB", "tanggal": "2025-10-14", "tahun": 2025, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 4805905681.0}, {"no": 83, "entitas": "PT. KPB", "tanggal": "2025-10-16", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 4305905681.0}, {"no": 84, "entitas": "PT. KPB", "tanggal": "2025-11-25", "tahun": 2025, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 4805905681.0}, {"no": 85, "entitas": "PT. KPB", "tanggal": "2025-12-15", "tahun": 2025, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 5805905681.0}, {"no": 86, "entitas": "PT. KPB", "tanggal": "2026-01-15", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 205905681.0, "saldo": 5600000000.0}, {"no": 87, "entitas": "PT. KPB", "tanggal": "2026-01-30", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 4600000000.0}, {"no": 88, "entitas": "PT. KPB", "tanggal": "2026-02-06", "tahun": 2026, "reff": "-", "debet": 0.0, "kredit": 250000000.0, "saldo": 4350000000.0}, {"no": 89, "entitas": "PT. KPB", "tanggal": "2026-07-31", "tahun": 2026, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 5350000000.0}, {"no": 90, "entitas": "PT. KPB", "tanggal": "2026-08-07", "tahun": 2026, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 5850000000.0}, {"no": 91, "entitas": "PT. MIGI", "tanggal": "2024-07-23", "tahun": 2024, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 500000000.0}, {"no": 92, "entitas": "PT. MIGI", "tanggal": "2024-07-25", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 500000000.0, "saldo": 0.0}, {"no": 93, "entitas": "PT. MIGI", "tanggal": "2024-07-25", "tahun": 2024, "reff": "-", "debet": 500000000.0, "kredit": 0.0, "saldo": 500000000.0}, {"no": 94, "entitas": "PT. MIGI", "tanggal": "2024-07-26", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 1500000000.0}, {"no": 95, "entitas": "PT. MIGI", "tanggal": "2024-08-02", "tahun": 2024, "reff": "-", "debet": 1500000000.0, "kredit": 0.0, "saldo": 3000000000.0}, {"no": 96, "entitas": "PT. MIGI", "tanggal": "2024-11-05", "tahun": 2024, "reff": "-", "debet": 1000000000.0, "kredit": 0.0, "saldo": 4000000000.0}, {"no": 97, "entitas": "PT. MIGI", "tanggal": "2024-11-07", "tahun": 2024, "reff": "-", "debet": 300000000.0, "kredit": 0.0, "saldo": 4300000000.0}, {"no": 98, "entitas": "PT. MIGI", "tanggal": "2024-11-12", "tahun": 2024, "reff": "-", "debet": 2650000000.0, "kredit": 0.0, "saldo": 6950000000.0}, {"no": 99, "entitas": "PT. MIGI", "tanggal": "2024-11-20", "tahun": 2024, "reff": "-", "debet": 0.0, "kredit": 20000000.0, "saldo": 6930000000.0}, {"no": 100, "entitas": "PT. MIGI", "tanggal": "2025-01-21", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 3000000000.0, "saldo": 3930000000.0}, {"no": 101, "entitas": "PT. MIGI", "tanggal": "2025-01-31", "tahun": 2025, "reff": "-", "debet": 0.0, "kredit": 1000000000.0, "saldo": 2930000000.0}, {"no": 102, "entitas": "PT. MIGI", "tanggal": "2025-07-29", "tahun": 2025, "reff": "-", "debet": 2000000000.0, "kredit": 0.0, "saldo": 4930000000.0}, {"no": 103, "entitas": "PT. MIGI", "tanggal": "2025-08-05", "tahun": 2025, "reff": "-", "debet": 2000000000.0, "kredit": 0.0, "saldo": 6930000000.0}];
+        const entitySummary = [{"entitas": "PT. KPB", "total_debet": 12050000000.0, "total_kredit": 16124250000.0, "saldo_akhir": 5850000000.0, "jumlah_transaksi": 35}, {"entitas": "PT. KPU", "total_debet": 17020000000.0, "total_kredit": 15520000000.0, "saldo_akhir": 11800000000.0, "jumlah_transaksi": 32}, {"entitas": "PT. KPW", "total_debet": 11900000000.0, "total_kredit": 16204124360.0, "saldo_akhir": 6700000000.0, "jumlah_transaksi": 23}, {"entitas": "PT. MIGI", "total_debet": 11450000000.0, "total_kredit": 4520000000.0, "saldo_akhir": 6930000000.0, "jumlah_transaksi": 13}];
+        const yearlySummary = [{"entitas": "PT. KPB", "tahun": 2023, "debet": 6200000000.0, "kredit": 5700000000.0, "saldo_akhir": 10424250000.0}, {"entitas": "PT. KPB", "tahun": 2024, "debet": 600000000.0, "kredit": 5660356379.0, "saldo_akhir": 5363893621.0}, {"entitas": "PT. KPB", "tahun": 2025, "debet": 3750000000.0, "kredit": 1500000000.0, "saldo_akhir": 5805905681.0}, {"entitas": "PT. KPB", "tahun": 2026, "debet": 1500000000.0, "kredit": 3263893621.0, "saldo_akhir": 5850000000.0}, {"entitas": "PT. KPU", "tahun": 2023, "debet": 9100000000.0, "kredit": 0.0, "saldo_akhir": 19400000000.0}, {"entitas": "PT. KPU", "tahun": 2024, "debet": 3400000000.0, "kredit": 4250000000.0, "saldo_akhir": 18550000000.0}, {"entitas": "PT. KPU", "tahun": 2025, "debet": 4520000000.0, "kredit": 11270000000.0, "saldo_akhir": 11800000000.0}, {"entitas": "PT. KPW", "tahun": 2023, "debet": 2500000000.0, "kredit": 3800000000.0, "saldo_akhir": 9704124360.0}, {"entitas": "PT. KPW", "tahun": 2024, "debet": 3000000000.0, "kredit": 5634124360.0, "saldo_akhir": 7070000000.0}, {"entitas": "PT. KPW", "tahun": 2025, "debet": 3400000000.0, "kredit": 5570000000.0, "saldo_akhir": 4900000000.0}, {"entitas": "PT. KPW", "tahun": 2026, "debet": 3000000000.0, "kredit": 1200000000.0, "saldo_akhir": 6700000000.0}, {"entitas": "PT. MIGI", "tahun": 2024, "debet": 7450000000.0, "kredit": 520000000.0, "saldo_akhir": 6930000000.0}, {"entitas": "PT. MIGI", "tahun": 2025, "debet": 4000000000.0, "kredit": 4000000000.0, "saldo_akhir": 6930000000.0}];
+
+        let filteredData = [...rawData];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function initDashboard() {
+            const totalDebet = entitySummary.reduce((sum, e) => sum + e.total_debet, 0);
+            const totalKredit = entitySummary.reduce((sum, e) => sum + e.total_kredit, 0);
+            const totalSaldo = entitySummary.reduce((sum, e) => sum + e.saldo_akhir, 0);
+
+            document.getElementById('kpi-total-debet').innerText = formatRupiah(totalDebet);
+            document.getElementById('kpi-total-kredit').innerText = formatRupiah(totalKredit);
+            document.getElementById('kpi-total-saldo').innerText = formatRupiah(totalSaldo);
+
+            // Render Resume Cards
+            const resumeContainer = document.getElementById('resumeCards');
+            resumeContainer.innerHTML = '';
+            entitySummary.forEach(ent => {
+                let cardColor = 'border-blue-500';
+                if (ent.entitas === 'PT. KPW') cardColor = 'border-emerald-500';
+                else if (ent.entitas === 'PT. KPB') cardColor = 'border-amber-500';
+                else if (ent.entitas === 'PT. MIGI') cardColor = 'border-purple-500';
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl shadow-sm border-l-4 " + cardColor + " border border-slate-200 space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-slate-900 text-base">${ent.entitas}</h4>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-bold">${ent.jumlah_transaksi} Transaksi</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Total Hutang Baru (D):</span>
+                            <span class="font-semibold text-blue-600">${formatRupiah(ent.total_debet)}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Total Dibayar (K):</span>
+                            <span class="font-semibold text-emerald-600">${formatRupiah(ent.total_kredit)}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-900 pt-2 border-t border-slate-100 font-bold">
+                            <span>Saldo Hutang Akhir:</span>
+                            <span class="text-sm text-slate-900">${formatRupiah(ent.saldo_akhir)}</span>
+                        </div>
+                    </div>
+                `;
+                resumeContainer.appendChild(card);
+            });
+
+            // Render Yearly Table
+            const yearlyBody = document.getElementById('yearlyTableBody');
+            yearlyBody.innerHTML = '';
+            yearlySummary.forEach((y, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx % 2 === 0 ? 'bg-white hover:bg-slate-50 transition' : 'bg-slate-50/50 hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-900">${y.entitas}</td>
+                    <td class="py-3 px-4 text-center font-semibold text-slate-700">${y.tahun}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-blue-600">${formatRupiah(y.debet)}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-emerald-600">${formatRupiah(y.kredit)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-slate-900">${formatRupiah(y.saldo_akhir)}</td>
+                `;
+                yearlyBody.appendChild(tr);
+            });
+
+            renderTable(rawData);
+            renderCharts();
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Tidak ada data yang ditemukan.</td></tr>`;
+                document.getElementById('tableInfo').innerText = 'Menampilkan 0 data';
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-white hover:bg-slate-50 transition' : 'bg-slate-50/50 hover:bg-slate-50 transition';
+                
+                let badgeClass = 'bg-blue-100 text-blue-700';
+                if (item.entitas === 'PT. KPW') badgeClass = 'bg-emerald-100 text-emerald-700';
+                else if (item.entitas === 'PT. KPB') badgeClass = 'bg-amber-100 text-amber-700';
+                else if (item.entitas === 'PT. MIGI') badgeClass = 'bg-purple-100 text-purple-700';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center font-medium text-slate-500">${index + 1}</td>
+                    <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeClass}">${item.entitas}</span></td>
+                    <td class="py-3 px-4 text-center">${item.tanggal}</td>
+                    <td class="py-3 px-4 text-center font-semibold text-slate-700">${item.tahun}</td>
+                    <td class="py-3 px-4 font-medium text-slate-700">${item.reff}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-blue-600">${formatRupiah(item.debet)}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-emerald-600">${formatRupiah(item.kredit)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-slate-900">${formatRupiah(item.saldo)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('tableInfo').innerText = `Menampilkan ${data.length} dari ${rawData.length} data`;
+        }
+
+        function filterTable() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const selectedEntity = document.getElementById('entityFilter').value;
+
+            filteredData = rawData.filter(item => {
+                const matchSearch = item.reff.toLowerCase().includes(searchText) || item.entitas.toLowerCase().includes(searchText) || item.tanggal.toLowerCase().includes(searchText);
+                const matchEntity = selectedEntity === '' || item.entitas === selectedEntity;
+                return matchSearch && matchEntity;
+            });
+
+            renderTable(filteredData);
+        }
+
+        let barChartInstance = null;
+        let doughnutChartInstance = null;
+
+        function renderCharts() {
+            const entities = entitySummary.map(e => e.entitas);
+            const debetData = entitySummary.map(e => e.total_debet);
+            const kreditData = entitySummary.map(e => e.total_kredit);
+            const saldoData = entitySummary.map(e => e.saldo_akhir);
+
+            // Bar Chart (Debet vs Kredit)
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: entities,
+                    datasets: [
+                        {
+                            label: 'Total Hutang (Debet)',
+                            data: debetData,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Total Pembayaran (Kredit)',
+                            data: kreditData,
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 10 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.dataset.label + ': ' + formatRupiah(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1e9) return (value / 1e9).toFixed(1) + ' M';
+                                    if (value >= 1e6) return (value / 1e6).toFixed(0) + ' Jt';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Doughnut Chart (Saldo Akhir)
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            if (doughnutChartInstance) doughnutChartInstance.destroy();
+
+            doughnutChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: entities,
+                    datasets: [{
+                        data: saldoData,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 10 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Saldo Akhir: ' + formatRupiah(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Entitas,Tanggal,Tahun,Reff,Debet,Kredit,Saldo\n";
+            
+            filteredData.forEach(item => {
+                let row = [item.no, `"${item.entitas}"`, `"${item.tanggal}"`, item.tahun, `"${item.reff}"`, item.debet, item.kredit, item.saldo];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "rekapan_hutang_filtered.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
